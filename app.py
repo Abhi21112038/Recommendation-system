@@ -98,8 +98,16 @@ else:
     st.write("Please upload an Excel file to proceed.")
 
 # Step 2: Data Cleaning & Description
-df1.dropna(subset=["CustomerID"], inplace=True)
-df1.drop_duplicates(inplace=True)
+if df1 is not None:
+    if "CustomerID" in df1.columns:
+        df1.dropna(subset=["CustomerID"], inplace=True)
+    else:
+        st.warning("Column 'CustomerID' not found in the dataset. Skipping dropna operation.")
+
+    df1.drop_duplicates(inplace=True)
+else:
+    st.error("Dataframe is empty. Please upload a valid file.")
+
 
 # Convert Invoice Date to datetime and extract Month
 df1["InvoiceDate"] = pd.to_datetime(df1["InvoiceDate"])
