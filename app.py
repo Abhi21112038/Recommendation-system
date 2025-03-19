@@ -71,9 +71,23 @@ from thefuzz.process import extractOne
 """**Loading the dataset**"""
 
 # Step 1: Load the dataset
+file_path = "/Users/a1/Downloads/OnlineRetail (1).xlsx"
 
-df = pd.read_excel('/Users/a1/Downloads/OnlineRetail (1).xlsx')
-df
+# Check if the file exists locally; otherwise, allow file upload for Streamlit Cloud
+if os.path.exists(file_path):
+    df = pd.read_excel(file_path)
+else:
+    uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
+    if uploaded_file:
+        df = pd.read_excel(uploaded_file)
+    else:
+        df = None
+
+# Display the dataframe if loaded
+if df is not None:
+    st.write(df)
+else:
+    st.warning("No file found. Please upload an Excel file.")
 
 # Step 2: Data Cleaning & Description
 df.dropna(subset=["CustomerID"], inplace=True)
@@ -151,11 +165,29 @@ plt.show()
 # Step 1: Load and Sample the Dataset (20% for faster processing)
 @st.cache_data
 def load_data():
-    file_path = "/Users/a1/Downloads/OnlineRetail (1).xlsx"  # Ensure this file is in the same directory
-    df1 = pd.read_excel(file_path)
+    file_path = "/Users/a1/Downloads/OnlineRetail (1).xlsx"
+    
+    # Check if the file exists locally; otherwise, allow file upload for Streamlit Cloud
+    if os.path.exists(file_path):
+        df1 = pd.read_excel(file_path)
+    else:
+        uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
+        if uploaded_file:
+            df1 = pd.read_excel(uploaded_file)
+        else:
+            return None  # Return None if no file is found or uploaded
+    
     df1 = df1.sample(frac=0.2, random_state=42).reset_index(drop=True)
     return df1
+
 df1 = load_data()
+
+# Display the dataframe if loaded
+if df1 is not None:
+    st.write(df1)
+else:
+    st.warning("No file found. Please upload an Excel file.")
+
 
 # Step 2: Data Cleaning & Description
 df1.dropna(subset=["CustomerID"], inplace=True)
