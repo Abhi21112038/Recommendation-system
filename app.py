@@ -71,23 +71,9 @@ from thefuzz.process import extractOne
 """**Loading the dataset**"""
 
 # Step 1: Load the dataset
-file_path = "/Users/a1/Downloads/OnlineRetail (1).xlsx"
-
-# Check if the file exists locally; otherwise, allow file upload for Streamlit Cloud
-if os.path.exists(file_path):
-    df = pd.read_excel(file_path)
-else:
-    uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
-    if uploaded_file:
-        df = pd.read_excel(uploaded_file)
-    else:
-        df = None
-
-# Display the dataframe if loaded
-if df is not None:
-    st.write(df)
-else:
-    st.warning("No file found. Please upload an Excel file.")
+@st.cache_data
+df = pd.read_excel('/Users/a1/Downloads/OnlineRetail (1).xlsx')
+df
 
 # Step 2: Data Cleaning & Description
 df.dropna(subset=["CustomerID"], inplace=True)
@@ -164,30 +150,28 @@ plt.show()
 
 # Step 1: Load and Sample the Dataset (20% for faster processing)
 @st.cache_data
-def load_data():
-    file_path = "/Users/a1/Downloads/OnlineRetail (1).xlsx"
-    
-    # Check if the file exists locally; otherwise, allow file upload for Streamlit Cloud
-    if os.path.exists(file_path):
-        df1 = pd.read_excel(file_path)
-    else:
-        uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
-        if uploaded_file:
-            df1 = pd.read_excel(uploaded_file)
-        else:
-            return None  # Return None if no file is found or uploaded
-    
+def load_data(uploaded_file):
+    # Read the uploaded file
+    df1 = pd.read_excel(uploaded_file)
+    # Sample 20% of the data
     df1 = df1.sample(frac=0.2, random_state=42).reset_index(drop=True)
     return df1
 
-df1 = load_data()
+# Streamlit app
+st.title("Online Retail Data Processing")
 
-# Display the dataframe if loaded
-if df1 is not None:
-    st.write(df1)
+# File uploader widget
+uploaded_file = st.file_uploader("Upload your Excel file", type=["xlsx"])
+
+if uploaded_file is not None:
+    # Load and process the data
+    df1 = load_data(uploaded_file)
+    
+    # Display the sampled data
+    st.write("Sampled Data (20% of the original dataset):")
+    st.dataframe(df1)
 else:
-    st.warning("No file found. Please upload an Excel file.")
-
+    st.write("Please upload an Excel file to proceed.")
 
 # Step 2: Data Cleaning & Description
 df1.dropna(subset=["CustomerID"], inplace=True)
